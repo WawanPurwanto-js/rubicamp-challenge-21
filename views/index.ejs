@@ -1,0 +1,634 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="/stylesheets/style.css" />
+  <script type="text/javascript" src="/javascripts/jquery-3.5.1.min.js"></script>
+
+  <title>Hello Jquery, Ajax,Postgres</title>
+</head>
+
+<body>
+  <h1>BREAD(Browser,Read,Edit,Add,Delete)</h1>
+  <div class="card border-secondary mb-3">
+    <div class="card-header">
+      <h1>Filter</h1>
+    </div>
+    <div class="card-body text-secondary container">
+      <form id="Search">
+        <input type="hidden" id="page" name="page" value="1" />
+        <div class="form-group row">
+          <label for="id" class="col-sm-1 col-form-label">
+            <input class="form-check-input" type="checkbox" name="check_id" />
+            ID
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="searchid" placeholder=" ID" value="" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="id" class="col-sm-1 col-form-label">
+            <input class="form-check-input" type="checkbox" name="check_string" />
+            String
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="searchString" placeholder=" String" value="" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="id" class="col-sm-1 col-form-label">
+            <input class="form-check-input" type="checkbox" name="check_integer" />
+            Integer
+          </label>
+          <div class="col-sm-10">
+            <input type="number" class="form-control" name="searchInteger" placeholder="Integer" value="" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="id" class="col-sm-1 col-form-label">
+            <input class="form-check-input" type="checkbox" name="check_float" />
+            Float
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="searchFloat" placeholder="Float" value="" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="id" class="col-sm-1 col-form-label">
+            <input class="form-check-input" type="checkbox" name="check_date" />
+            Date
+          </label>
+          <div class="col-sm-3">
+            <input type="date" class="form-control" name="startDate" placeholder="startDate" value="" />
+          </div>
+
+          <label for="id" class="col-sm-1 col-form-label">TO</label>
+
+          <div class="col-sm-6">
+            <input type="date" class="form-control" name="endDate" placeholder="endDate" value="" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="id" class="col-sm-1 col-form-label">
+            <input class="form-check-input" type="checkbox" name="check_boolean" />
+            Boolean
+          </label>
+          <div class="col-sm-10">
+            <select id="boolean" class="form-control" name="boolean">
+              <option disabled selected> Choose the boolean.....</option>
+              <option value="true"> True</option>
+              <option value="false"> False</option>
+            </select>
+          </div>
+        </div>
+        <div class="container">
+          <button type="submit" class="btn btn-primary btn-search">
+            Search
+          </button>
+          <a href="/" class="btn btn-danger">Reset</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <table class="table table=striped container">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Stringdata</th>
+        <th>Integer</th>
+        <th>Float</th>
+        <th>Date</th>
+        <th>Boolean</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center"></ul>
+  </nav>
+
+  <script type="text/javascript">
+    const API_URL = "http://localhost:3000/bread";
+
+    $(document).ready(() => {
+      loadData();
+      //eventListener
+      $("#siswa-form").submit((event) => {
+        event.preventDefault();
+        SaveData();
+      });
+
+      $("table tbody").on("click", ".btn-delete", (event) => {
+        removeData(event.currentTarget.attributes.dataid.value);
+      });
+    });
+
+    const loadData = () => {
+      $.ajax({
+        method: "GET",
+        url: API_URL,
+        dataType: "json",
+      }).done(function (data) {
+        let html = "";
+        data.forEach((item) => {
+          html += `<tr>
+        <td>${item.id}</td>
+        <td>${item.string}</td>
+        <td>${item.integer}</td>
+        <td>${item.float}</td>
+        <td>${item.date}</td>
+        <td>${item.boolean}</td> 
+        <td><button type="button" class="btn btn-success " dataid="${item.id}">Edit</button>
+        <button type="button" class="btn btn-danger btn-delete" dataid="${item.id}">Delete</button>
+        
+        </td>
+        </tr>`;
+        });
+        $("table tbody").html(html);
+      });
+    };
+
+    const SaveData = () => {
+      $.ajax({
+          method: "POST",
+          url: API_URL,
+          dataType: "json",
+          data: {
+            nama: $("#nama").val(),
+            umur: $("#umur").val(),
+            isjomblo: $('input[name="isjomblo"]:checked').val(),
+          },
+        })
+        .done(function (data) {
+          loadData();
+          $("#siswa-form").trigger("reset");
+        })
+        .fail(function (err) {
+          console.log("terjadi eroor");
+        });
+    };
+
+    const removeData = (id) => {
+      $.ajax({
+          method: "Delete",
+          url: `${API_URL}/${id}`,
+          dataType: "json",
+        })
+        .done(function (data) {
+          loadData();
+        })
+        .fail(function (err) {
+          console.log("terjadi eroor,err");
+        });
+    };
+  </script>
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Title Page</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+  <h1 class="text-center">Chalenge 21 Rubicamp posgrest,ajax,jquery</h1>
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <!-- Bootstrap JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <h1 class="container">BREAD(Browse,Read,Edit,Add,Delete)</h1>
+  <h1 class="container">Filter</h1>
+  <div class="container">
+    <form id="search">
+      <input type="hidden" id="page" name="page" value="1">
+      <div class="form-group row">
+        <label for="id" class="col-sm-1 col-form-label">
+          <input class="form-check-input" type="checkbox" name="check_id">
+          ID
+        </label>
+        <div class="col-sm-7">
+          <input type="text" class="form-control" name="searchid" placeholder="ID" value="">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-1 col-form-label">
+          <input class="form-check-input" type="checkbox" name="check_string"> String
+        </label>
+        <div class="col-sm-7">
+          <input type="text" class="form-control" name="searchString" id="searchString" placeholder="String" value="">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-1 col-form-label">
+          <input class="form-check-input" type="checkbox" name="check_integer"> Integer
+        </label>
+        <div class="col-sm-7">
+          <input type="number" class="form-control" placeholder="Integer" id="searchInteger" name="searchInteger"
+            value="">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-1 col-form-label">
+          <input class="form-check-input" type="checkbox" name="check_float"> Float
+        </label>
+        <div class="col-sm-7">
+          <input type="text" class="form-control" name="searchFloat" placeholder="Float" name="searchFloat" value="">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-1 col-form-label">
+          <input class="form-check-input" type="checkbox" name="check_date"> Date
+        </label>
+        <div class="col-sm-2">
+          <input type="date" class="form-control" placeholder="Start Date" name="startDate" value="">
+        </div>
+        <label class="col-sm-1 col-form-label">TO</label>
+        <div class="col-sm-2">
+          <input type="date" class="form-control" placeholder="End Date" name="endDate" value="">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-1 col-form-label">
+          <input class="form-check-input" type="checkbox" id="defaultCheck1" name="check_boolean">Boolean
+        </label>
+        <div class="col-sm-7">
+          <select id="boolean" class="form-control" name="boolean">
+            <option disabled selected>Choose the boolean...</option>
+            <option value="true"> True</option>
+            <option value="false">False</option>
+          </select>
+        </div>
+      </div>
+  </div>
+  <div class="container">
+    <button type="submit" class="btn btn-primary btn-search">Search</button>
+    <a href="/" class="btn btn-danger">Reset</a>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAdd">Add</button>
+  </div>
+  </form>
+
+  <table class="table table-striped container">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>String</th>
+        <th>Integer</th>
+        <th>Float</th>
+        <th>Date</th>
+        <th>Boolean</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+    </ul>
+  </nav>
+
+  <!-- halaman add -->
+  <div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="modalAdd2" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAdd2">Add Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body container">
+          <form method="POST" id="form-add">
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">String</label>
+              <div class="col-sm-4">
+                <input type="text" class="form-control" name="string" id="addString" placeholder="String">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Integer</label>
+              <div class="col-sm-4">
+                <input type="number" class="form-control" name="integer" id="addInteger" placeholder="Integer">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Float</label>
+              <div class="col-sm-4">
+                <input type="text" class="form-control" name="float" id="addFloat" placeholder="Float">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label"> Date</label>
+              <div class="col-sm-4">
+                <input type="date" class="form-control" name="date" id="addDate">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="inputBoolean" class="col-sm-2 col-form-label">Boolean</label>
+              <div class="col-sm-4">
+                <select class="custom-select" id="addBoolean" name="boolean">
+                  <option value="true">true</option>
+                  <option value="false">false</option>
+                </select>
+              </div>
+            </div>
+            <div class="container">
+              <div class="form-group row">
+                <div class="col-sm-5">
+                  <button type="submit" class="btn btn-primary btn-save">Save</button>
+                  <a href="/" type="submit" class="btn btn-danger" data-dismiss="modal">Cancel</a>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- halaman edit -->
+  <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="modalEdit2" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEdit2">Edit Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="form-edit">
+            <div class="form-group row">
+              <label for="id" class="col-sm-2 col-form-label">ID</label>
+              <div class="col-sm-9">
+                <input type="text" id="inputId" name="id" class="form-control id" required disabled>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">String</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control string" id="inputString" name="string" placeholder="String"
+                  value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Integer</label>
+              <div class="col-sm-9">
+                <input type="number" class="form-control integer" id="inputInteger" name="integer" placeholder="Integer"
+                  value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Float</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control float" id="inputFloat" name="float" placeholder="Float" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Date</label>
+              <div class="col-sm-9">
+                <input class="form-control date" type="date" id="inputDate" name="date" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Boolean</label>
+              <div class="col-sm-9">
+                <select class="form-control" id="inputBoolean" name="boolean">
+                  <option selected disabled>Choose the boolean...</option>
+                  <select class="custom-select" id="addBoolean" name="boolean">
+
+
+                  </select>
+                </select>
+              </div>
+            </div>
+        </div>
+        <div class="container save-data">
+          <button type="submit" id="submit-data" class="btn btn-outline-primary btn-save" dataid=""
+            data-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+      </form>
+    </div>
+  </div>
+  </div>
+
+
+  <script>
+    const API_URL = 'http://localhost:3000/bread';
+
+    $(document).ready(() => {
+      loadData();
+      //eventlistener
+      $('#form-add').submit((event) => {
+        event.preventDefault();
+        tambahData();
+      })
+      $('table tbody').on("click", ".btn-delete", (event) => {
+        event.preventDefault();
+        removeData(event.currentTarget.attributes.dataid.value);
+      })
+      $('table tbody').on('click', '.btn-edit', (event) => {
+        showData(event.currentTarget.attributes.dataid.value);
+      });
+
+      $('.save-data').on('click', '.btn-save', (event) => {
+        updateData(event.currentTarget.attributes.dataid.value);
+        console.log(event.currentTarget.attributes)
+        loadData();
+      })
+      $('#search').submit((event) => {
+        event.preventDefault();
+        loadData();
+      })
+      $('ul.pagination').on('click', '.previous', (event) => {
+        let page = $('#page').val();
+        $('#page').val(parseInt(page) - 1);
+        loadData();
+      })
+      $('ul.pagination').on('click', '.pageNow', (event) => {
+        let page = $('#page').val();
+        $('#page').val($(event.currentTarget).attr('data-page'));
+        loadData();
+      })
+      $('ul.pagination').on('click', '.next', (event) => {
+        let page = $('#page').val();
+        $('#page').val(parseInt(page) + 1);
+        loadData();
+      })
+    });
+
+    const showData = (id) => {
+      $.ajax({
+          method: "GET",
+          url: `${API_URL}/${id}`,
+          dataType: 'json'
+        })
+        .done((data) => {
+          let a = '';
+          data.forEach(item => {
+            $('#submit-data').attr('dataid', item.id);
+            $('#inputId').val(item.id);
+            $('#inputString').val(item.string);
+            $('#inputInteger').val(item.integer);
+            $('#inputFloat').val(item.float);
+            $('#inputDate').val(item.date);
+            if (item.boolean) {
+              a += `  <option selected disabled>Choose the boolean...</option>
+                        <option value="true" selected>true</option>
+                        <option value="false" >false</option>`
+            } else {
+              a += `  <option selected disabled>Choose the boolean...</option>
+                        <option value="true">true</option>
+                        <option value="false" selected>false</option>`
+            }
+          })
+          $('#inputBoolean').html(a);
+        })
+        .fail((err) => {
+          console.log('terjadi error', err)
+        })
+    }
+
+    const loadData = () => {
+      const filter = $('#search').serializeArray();
+      // console.log(filter)
+      $.ajax({
+          method: "GET",
+          url: API_URL,
+          data: filter,
+          dataType: "json"
+        })
+        .done((result) => {
+          const data = result.result
+          const value = result.result
+          let html = '';
+          data.forEach(item => {
+            html += `<tr>
+            <td>${item.id}</td>
+            <td>${item.string}</td>
+            <td>${item.integer}</td>
+            <td>${item.float}</td>
+            <td>${item.date}</td>
+            <td>${item.boolean}</td>
+            <td>
+            <button type="button" class = "btn btn-info btn-edit btn-sm" dataid = "${item.id}"
+            data-toggle="modal" data-target="#modalEdit">Edit
+            <button type="button" class = "btn btn-danger btn-delete btn-sm" dataid = "${item.id}">Delete
+            </td>
+            </tr>`
+          });
+          $('table tbody').html(html);
+          let currentPage = result.currentPage;
+          let totalPage = result.totalPage;
+          let url = result.url;
+          let pagination =
+            `<li class="page-item ${currentPage <=1 ? ' disabled' : ''}"><button class="page-link previous" tabindex="-1" aria-disabled="true">Previous</button></li>\n`;
+          for (let i = 1; i <= totalPage; i++) {
+            pagination +=
+              `<li class="page-item ${currentPage == i ? 'active': ''}"><button class="page-link pageNow" data-page='${i}'>${i}</button></li>\n`
+          }
+          pagination +=
+            `<li class="page-item ${currentPage >= totalPage ? ' disabled' : ''}"><button class="page-link next">Next</button></li>`;
+          $('nav ul').html(pagination);
+        });
+    }
+    const tambahData = (id) => {
+      $.ajax({
+          method: "POST",
+          url: API_URL,
+          dataType: 'json',
+          data: {
+            string: $('#addString').val(),
+            integer: $('#addInteger').val(),
+            float: $('#addFloat').val(),
+            date: $('#addDate').val(),
+            boolean: $('#addBoolean').val(),
+          }
+        })
+        .done(function (data) {
+          loadData();
+          $('#-form-add').trigger("reset");
+        })
+
+        // .done( (data) =>{
+        //   loadData();
+        //   // $('#form-add').trigger("reset");
+        //   location.replace('/')
+        // })
+        .fail((err) => {
+          console.log('terjadi error', err)
+        })
+    }
+
+    const updateData = () => {
+      $.ajax({
+          method: "PUT",
+          url: `${API_URL}/${id}`,
+          dataType: 'json',
+          data: {
+            id: `${id}`,
+            string: $('#inputString').val(),
+            integer: $('#inputInteger').val(),
+            float: $('#inputFloat').val(),
+            date: $('#inputDate').val(),
+            boolean: $('#inputBoolean').val(),
+          },
+        })
+        .done((data) => {
+          loadData();
+        })
+        .fail((err) => {
+          console.log('terjadi error', err)
+        })
+    }
+
+    const removeData = (id) => {
+      $.ajax({
+          method: "DELETE",
+          url: `${API_URL}/${id}`,
+          dataType: 'json'
+        })
+        .done((data) => {
+          loadData();
+        })
+        .fail((err) => {
+          console.log('terjadi error', err)
+        })
+    }
+  </script>
+
+</body>
+
+</html>
